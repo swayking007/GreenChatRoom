@@ -6,12 +6,12 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Serve index.html
 app.use(express.static(__dirname));
 
 io.on('connection', (socket) => {
     console.log("User connected:", socket.id);
 
-    // Join room
     socket.on('joinRoom', ({ username, room }) => {
         socket.join(room);
         socket.username = username;
@@ -19,14 +19,12 @@ io.on('connection', (socket) => {
 
         console.log(`${username} joined ${room}`);
 
-        // Notify others
         socket.to(room).emit('chat message', {
             user: "System",
             text: `${username} joined the room`
         });
     });
 
-    // Chat message
     socket.on('chat message', (msg) => {
         io.to(socket.room).emit('chat message', {
             user: socket.username,
@@ -34,7 +32,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Disconnect
     socket.on('disconnect', () => {
         if (socket.username && socket.room) {
             io.to(socket.room).emit('chat message', {
@@ -42,11 +39,10 @@ io.on('connection', (socket) => {
                 text: `${socket.username} left the room`
             });
         }
+
         console.log("User disconnected:", socket.id);
     });
 });
-
-app.use(express.static(__dirname));
 
 const PORT = process.env.PORT || 3000;
 
