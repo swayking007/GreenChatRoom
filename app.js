@@ -45,7 +45,9 @@ io.on('connection', (socket) => {
         console.log("User disconnected:", socket.id);
     });
 });
-
-server.listen(3000, () => {
-    console.log("Server running on port 3000");
+app.get("/", (req, res) => {
+    res.send("Socket.IO server is running!");
 });
+// server.listen(3000, () => {
+//     console.log("Server running on port 3000");
+// });
