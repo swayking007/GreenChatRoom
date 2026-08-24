@@ -45,9 +45,9 @@ io.on('connection', (socket) => {
         console.log("User disconnected:", socket.id);
     });
 });
-app.get("/", (req, res) => {
-    res.send("Socket.IO server is running!");
-});
+
+app.use(express.static(__dirname));
+
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
