@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Green Chat Rooms</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #e8f5e9;
+}
+
+h2 {
+    text-align: center;
+    background: #2e7d32;
+    color: white;
+    padding: 10px;
+}
+
+#chat {
+    display: none;
+}
+
+#messages {
+    list-style: none;
+    padding: 10px;
+    height: 350px;
+    overflow-y: auto;
+}
+
+.message {
+    padding: 8px;
+    margin: 5px;
+    max-width: 60%;
+    border-radius: 10px;
+}
+
+.left {
+    background: #c8e6c9;
+    text-align: left;
+}
+
+.right {
+    background: #81c784;
+    margin-left: auto;
+    text-align: right;
+}
+
+form {
+    display: flex;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+}
+
+button {
+    background: #1b5e20;
+    color: white;
+    border: none;
+    padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🌿 Chat Rooms</h2>
+
+<!-- Join form -->
+<div id="join">
+    <input id="username" placeholder="Enter name"><br><br>
+    <input id="room" placeholder="Enter room"><br><br>
+    <button onclick="joinChat()">Join Chat</button>
+</div>
+
+<!-- Chat UI -->
+<div id="chat">
+    <ul id="messages"></ul>
+
+    <form id="form">
+        <input id="input" placeholder="Message">
+        <button>Send</button>
+    </form>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+const socket = io();
+
+let username = "";
+let room = "";
+
+// Join room
+function joinChat() {
+    username = document.getElementById('username').value;
+    room = document.getElementById('room').value;
+
+    if (!username || !room) {
+        alert("Enter username and room");
+        return;
+    }
+
+    socket.emit('joinRoom', { username, room });
+
+    document.getElementById('join').style.display = "none";
+    document.getElementById('chat').style.display = "block";
+}
+
+// Send message
+document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const input = document.getElementById('input');
+
+    if (input.value) {
+        socket.emit('chat message', input.value);
+        input.value = '';
+    }
+});
+
+// Receive message
+socket.on('chat message', function(data) {
+    const item = document.createElement('li');
+    item.classList.add('message');
+
+    if (data.user === username) {
+        item.classList.add('right'); // outgoing
+    } else {
+        item.classList.add('left'); // incoming
+    }
+
+    item.textContent = `${data.user}: ${data.text}`;
+
+    document.getElementById('messages').appendChild(item);
+});
+</script>
+
+</body>
+</html>
